@@ -89,3 +89,11 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun MainScreenPreview() {
+    val navController = rememberNavController()
+    MusicNotesTheme {
+        MainScreen(navController = navController)
+    }
+}
