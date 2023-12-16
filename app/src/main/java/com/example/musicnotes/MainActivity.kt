@@ -58,6 +58,29 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+@Composable
+fun AppNavigation() {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = "main"
+    ) {
+        composable("main") { MainScreen(navController) }
+        composable("songList") { SongListScreen(navController, songs = emptyList(), navigateToSong = { song -> navController.navigate("songDetail/${song.id}") } ) }
+        composable(
+            route = "songDetail/{songId}",
+            arguments = listOf(navArgument("songId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val songId = backStackEntry.arguments?.getString("songId")
+            val song = getSongById(songId)
+            SongDetailScreen(songId, navController, songs = listOf(song)) {}
+        }
+        composable("favorites") { FavoritesScreen(navController, favoriteSongs = emptyList()) }
+        composable("search") { SearchScreen(navController, allSongs = emptyList(), onSearch = {}) }
+    }
+}
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
@@ -66,10 +89,3 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    MusicNotesTheme {
-        Greeting("Android")
-    }
-}
