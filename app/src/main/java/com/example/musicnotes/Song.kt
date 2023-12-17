@@ -8,11 +8,11 @@ data class Song(
 )
 
 val allSongs = listOf(
-    Song("1", "Song 1", "video_url_1", R.drawable.barca),
-    Song("2", "Song 2", "video_url_2", R.drawable.barca),
-    Song("3", "Song 3", "video_url_3", R.drawable.barca),
-    Song("4", "Song 4", "video_url_4", R.drawable.barca),
-    Song("5", "Song 5", "video_url_5", R.drawable.barca),
+    Song("1", "Адай", "video_url_1", R.drawable.adai),
+    Song("2", "Балбырауын", "video_url_2", R.drawable.balb),
+    Song("3", "Аққу", "video_url_3", R.drawable.akku),
+    Song("4", "Ерке Сылқым", "video_url_4", R.drawable.erke),
+    Song("5", "Көңіл толқыны", "video_url_5", R.drawable.konil),
 )
 
 fun getSongById(songId: String?): Song? {

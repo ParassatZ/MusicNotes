@@ -254,7 +254,8 @@ fun SongDetailScreen(
                     painter = painterResource(id = song?.imageResourceId ?: R.drawable.barca),
                     contentDescription = null,
                     modifier = Modifier
-                        .height(200.dp)
+                        .height(700.dp)
+                        .width(700.dp)
                         .clip(shape = MaterialTheme.shapes.medium)
                 )
             }
