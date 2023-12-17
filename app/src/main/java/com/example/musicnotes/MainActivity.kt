@@ -120,6 +120,75 @@ fun MainScreen(navController: NavHostController) {
     )
 }
 
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun SongListScreen(navController: NavHostController, songs: List<Song>, navigateToSong: (Song) -> Unit) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Song List") },
+                navigationIcon = {
+                    IconButton(onClick = { /* Handle back button click */ }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            LazyColumn {
+                items(songs) { song ->
+                    SongListItem(song = song, navigateToSong = navigateToSong)
+                    Divider()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun SongListItem(song: Song, navigateToSong: (Song) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { navigateToSong(song) }
+            .padding(16.dp)
+    ) {
+        // Display song details (title and image)
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = song.title, style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Image(
+                painter = painterResource(id = song.imageResourceId),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(100.dp)
+                    .clip(shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun SongListScreenPreview() {
+    val songs = listOf(
+        Song("1","Song 1", "video_url_1", R.drawable.barca),
+        Song("2", "Song 2", "video_url_2", R.drawable.barca),
+        Song("3", "Song 3", "video_url_3", R.drawable.barca),
+        Song("4", "Song 4", "video_url_4", R.drawable.barca),
+        Song("5","Song 5", "video_url_5", R.drawable.barca),
+    )
+    val navController = rememberNavController()
+    MusicNotesTheme {
+        SongListScreen(navController = navController, songs = songs, navigateToSong = {})
+    }
+}
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
