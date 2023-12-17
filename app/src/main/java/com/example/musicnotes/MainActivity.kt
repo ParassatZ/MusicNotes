@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -62,7 +63,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-
+    val favoriteSongsState = remember { mutableStateOf<List<Song>>(emptyList()) }
     NavHost(
         navController = navController,
         startDestination = "main"
@@ -75,10 +76,16 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId")
             val song = getSongById(songId)
-            SongDetailScreen(songId, navController, songs = listOf(song)) {}
+            SongDetailScreen(songId, navController, songs = allSongs, addToFavorites = { song -> addToFavorites(song as? Song, favoriteSongsState) })
         }
-        composable("favorites") { FavoritesScreen(navController, favoriteSongs = emptyList()) }
+        composable("favorites") { FavoritesScreen(navController, favoriteSongs = favoriteSongsState.value) }
         composable("search") { SearchScreen(navController, allSongs = emptyList(), onSearch = {}) }
+    }
+}
+
+fun addToFavorites(song: Song?, favoriteSongsState: MutableState<List<Song>>) {
+    if (song != null) {
+        favoriteSongsState.value = favoriteSongsState.value + listOf(song)
     }
 }
 
@@ -90,7 +97,7 @@ fun MainScreen(navController: NavHostController) {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        // Content of the screen (Start button)
+
         Box(
             modifier = Modifier
                 .weight(1f)
@@ -111,7 +118,7 @@ fun MainScreen(navController: NavHostController) {
                     ) {
                         Button(onClick = {
                             navController.navigate("songList") {
-                                // You can pass arguments if needed
+
                             }
                         }) {
                             Text("Start")
@@ -122,7 +129,6 @@ fun MainScreen(navController: NavHostController) {
             )
         }
 
-        // Row with "Favorites" and "Search" buttons at the bottom
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -173,7 +179,7 @@ fun SongListItem(song: Song, navigateToSong: (Song) -> Unit) {
             .clickable { navigateToSong(song) }
             .padding(16.dp)
     ) {
-        // Display song details (title and image)
+
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center
@@ -210,7 +216,7 @@ fun SongDetailScreen(
     songId: String?,
     navController: NavHostController,
     songs: List<Song?>,
-    addToFavorites: () -> Unit
+    addToFavorites: (Any?) -> Unit
 ){
     val song = songs.find { it!!.id == songId }
     if (song==null){
@@ -221,13 +227,12 @@ fun SongDetailScreen(
             TopAppBar(
                 title = { Text(song?.title ?: "Song Detail") },
                 navigationIcon = {
-                    IconButton(onClick = { "songList" }) {
+                    IconButton(onClick = { navController.navigate("songList") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 },
                 actions = {
-                    // Add to Favorites button in the top app bar
-                    IconButton(onClick = addToFavorites) {
+                    IconButton(onClick = { addToFavorites(song) }) {
                         Icon(Icons.Default.Favorite, contentDescription = null)
                     }
                 }
@@ -241,7 +246,6 @@ fun SongDetailScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Display song details (title, video, and image)
                 Text(text = song?.title ?: "Song Detail", style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(text = "Video Tutorial: ${song?.videoUrl}")
@@ -283,7 +287,7 @@ fun FavoritesScreen(navController: NavHostController, favoriteSongs: List<Song>)
             )
         },
         content = {
-            LazyColumn {
+            LazyColumn( contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
                 items(favoriteSongs) { song ->
                     FavoriteSongItem(song = song)
                     Divider()
@@ -300,7 +304,6 @@ fun FavoriteSongItem(song: Song) {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Display song details (title and image)
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center
@@ -327,7 +330,7 @@ fun FavoritesScreenPreview() {
         Song("2", "Favorite Song 2", "favorite_video_url_2", R.drawable.ic_launcher_foreground),
         Song("3", "Favorite Song 3", "favorite_video_url_3", R.drawable.ic_launcher_foreground),
     )
-    val navController = rememberNavController() // Или используйте ваш собственный объект NavController
+    val navController = rememberNavController()
 
     MusicNotesTheme {
         FavoritesScreen(navController = navController, favoriteSongs = favoriteSongs)
@@ -380,7 +383,6 @@ fun SearchSongItem(song: Song) {
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        // Display song details (title and image)
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center
@@ -409,7 +411,7 @@ fun SearchScreenPreview() {
         Song("4","Search Song 4", "search_video_url_4", R.drawable.ic_launcher_foreground),
         Song("5","Search Song 5", "search_video_url_5", R.drawable.ic_launcher_foreground),
     )
-    val navController = rememberNavController() // Или используйте ваш собственный объект NavController
+    val navController = rememberNavController()
 
     MusicNotesTheme {
         SearchScreen(navController = navController, allSongs = allSongs, onSearch = {})
