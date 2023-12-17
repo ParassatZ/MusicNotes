@@ -189,13 +189,72 @@ fun SongListScreenPreview() {
     }
 }
 
+
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun SongDetailScreen(
+    songId: String?,
+    navController: NavHostController,
+    songs: List<Song?>,
+    addToFavorites: () -> Unit
+){
+    val song = songs.find { it!!.id == songId }
+    if (song==null){
+        Text("Song not found")
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(song?.title ?: "Song Detail") },
+                navigationIcon = {
+                    IconButton(onClick = { /* Handle back button click */ }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                },
+                actions = {
+                    // Add to Favorites button in the top app bar
+                    IconButton(onClick = addToFavorites) {
+                        Icon(Icons.Default.Favorite, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                // Display song details (title, video, and image)
+                Text(text = song?.title ?: "Song Detail", style = MaterialTheme.typography.headlineMedium)
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(text = "Video Tutorial: ${song?.videoUrl}")
+                Spacer(modifier = Modifier.height(16.dp))
+                Image(
+                    painter = painterResource(id = song?.imageResourceId ?: R.drawable.barca),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .clip(shape = MaterialTheme.shapes.medium)
+                )
+            }
+        }
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun SongDetailScreenPreview() {
+    val song = Song("1","Sample Song", "sample_video_url", R.drawable.barca)
+
+    MusicNotesTheme {
+        SongDetailScreen(songId = "1", navController = rememberNavController(), songs = listOf(song), addToFavorites = {})
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
