@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
+@file:Suppress("UNUSED_EXPRESSION", "UNUSED_EXPRESSION")
 
 package com.example.musicnotes
 
@@ -52,7 +53,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MusicNotesTheme {
-                // Set up the main activity layout
                 AppNavigation()
             }
         }
@@ -85,41 +85,59 @@ fun AppNavigation() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(navController: NavHostController) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Music Notes") },
-                Modifier.background(color = MaterialTheme.colorScheme.primary)
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
+        // Content of the screen (Start button)
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .padding(16.dp)
+        ) {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text("Music Notes") },
+                        Modifier.background(color = MaterialTheme.colorScheme.primary)
+                    )
+                },
+                content = {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Button(onClick = {
+                            navController.navigate("songList") {
+                                // You can pass arguments if needed
+                            }
+                        }) {
+                            Text("Start")
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+                }
             )
-        },
-        content = {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Button(onClick = { /* Handle Start button click */ }) {
-                    Text("Start")
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    IconButton(onClick = { /* Handle Favorites button click */ }) {
-                        Icon(Icons.Default.Favorite, contentDescription = null)
-                    }
-                    IconButton(onClick = { /* Handle Search button click */ }) {
-                        Icon(Icons.Default.Search, contentDescription = null)
-                    }
-                }
+        }
+
+        // Row with "Favorites" and "Search" buttons at the bottom
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            IconButton(onClick = { navController.navigate("favorites") }) {
+                Icon(Icons.Default.Favorite, contentDescription = null)
+            }
+            IconButton(onClick = { navController.navigate("search") }) {
+                Icon(Icons.Default.Search, contentDescription = null)
             }
         }
-    )
+    }
 }
-
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -129,15 +147,16 @@ fun SongListScreen(navController: NavHostController, songs: List<Song>, navigate
             TopAppBar(
                 title = { Text("Song List") },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back button click */ }) {
+                    IconButton(onClick = {  navController.navigate("main")  }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 }
             )
         },
         content = {
-            LazyColumn {
-                items(songs) { song ->
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn( contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
+                items(items = allSongs, key = { song -> song.id }) { song ->
                     SongListItem(song = song, navigateToSong = navigateToSong)
                     Divider()
                 }
@@ -176,16 +195,10 @@ fun SongListItem(song: Song, navigateToSong: (Song) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun SongListScreenPreview() {
-    val songs = listOf(
-        Song("1","Song 1", "video_url_1", R.drawable.barca),
-        Song("2", "Song 2", "video_url_2", R.drawable.barca),
-        Song("3", "Song 3", "video_url_3", R.drawable.barca),
-        Song("4", "Song 4", "video_url_4", R.drawable.barca),
-        Song("5","Song 5", "video_url_5", R.drawable.barca),
-    )
+
     val navController = rememberNavController()
     MusicNotesTheme {
-        SongListScreen(navController = navController, songs = songs, navigateToSong = {})
+        SongListScreen(navController = navController, songs = allSongs, navigateToSong = {})
     }
 }
 
@@ -208,7 +221,7 @@ fun SongDetailScreen(
             TopAppBar(
                 title = { Text(song?.title ?: "Song Detail") },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back button click */ }) {
+                    IconButton(onClick = { "songList" }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 },
@@ -320,26 +333,39 @@ fun FavoritesScreenPreview() {
         FavoritesScreen(navController = navController, favoriteSongs = favoriteSongs)
     }
 }
-
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SongListScreen(navController: NavHostController, songs: List<Song>, navigateToSong: (Song) -> Unit) {
+fun SearchScreen(navController: NavHostController, allSongs: List<Song>, onSearch: (String) -> Unit) {
+    var searchText by remember { mutableStateOf(TextFieldValue()) }
+
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Song List") },
+                title = {
+                    TextField(
+                        value = searchText,
+                        onValueChange = {
+                            searchText = it
+                            onSearch(it.text)
+                        },
+                        placeholder = { Text("Search") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = { /* Handle back button click */ }) {
+                    IconButton(onClick = { navController.navigate("main") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 }
             )
         },
         content = {
-            LazyColumn {
-                items(songs) { song ->
-                    SongListItem(song = song, navigateToSong = navigateToSong)
+            Spacer(modifier = Modifier.height(16.dp))
+            LazyColumn(contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
+                items(items = com.example.musicnotes.allSongs.filter { it.title.contains(searchText.text, ignoreCase = true) }) { song ->
+                    SearchSongItem(song = song)
                     Divider()
                 }
             }
@@ -348,11 +374,10 @@ fun SongListScreen(navController: NavHostController, songs: List<Song>, navigate
 }
 
 @Composable
-fun SongListItem(song: Song, navigateToSong: (Song) -> Unit) {
+fun SearchSongItem(song: Song) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { navigateToSong(song) }
             .padding(16.dp)
     ) {
         // Display song details (title and image)
@@ -376,19 +401,22 @@ fun SongListItem(song: Song, navigateToSong: (Song) -> Unit) {
 
 @Preview(showBackground = true)
 @Composable
-fun SongListScreenPreview() {
-    val songs = listOf(
-        Song("1","Song 1", "video_url_1", R.drawable.barca),
-        Song("2", "Song 2", "video_url_2", R.drawable.barca),
-        Song("3", "Song 3", "video_url_3", R.drawable.barca),
-        Song("4", "Song 4", "video_url_4", R.drawable.barca),
-        Song("5","Song 5", "video_url_5", R.drawable.barca),
+fun SearchScreenPreview() {
+    val allSongs = listOf(
+        Song("1","Search Song 1", "search_video_url_1", R.drawable.ic_launcher_foreground),
+        Song("2", "Search Song 2", "search_video_url_2", R.drawable.ic_launcher_foreground),
+        Song("3","Search Song 3", "search_video_url_3", R.drawable.ic_launcher_foreground),
+        Song("4","Search Song 4", "search_video_url_4", R.drawable.ic_launcher_foreground),
+        Song("5","Search Song 5", "search_video_url_5", R.drawable.ic_launcher_foreground),
     )
-    val navController = rememberNavController()
+    val navController = rememberNavController() // Или используйте ваш собственный объект NavController
+
     MusicNotesTheme {
-        SongListScreen(navController = navController, songs = songs, navigateToSong = {})
+        SearchScreen(navController = navController, allSongs = allSongs, onSearch = {})
     }
 }
+
+
 
 
 @Preview(showBackground = true)
