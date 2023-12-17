@@ -81,6 +81,45 @@ fun AppNavigation() {
         composable("search") { SearchScreen(navController, allSongs = emptyList(), onSearch = {}) }
     }
 }
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun MainScreen(navController: NavHostController) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Music Notes") },
+                Modifier.background(color = MaterialTheme.colorScheme.primary)
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(onClick = { /* Handle Start button click */ }) {
+                    Text("Start")
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    IconButton(onClick = { /* Handle Favorites button click */ }) {
+                        Icon(Icons.Default.Favorite, contentDescription = null)
+                    }
+                    IconButton(onClick = { /* Handle Search button click */ }) {
+                        Icon(Icons.Default.Search, contentDescription = null)
+                    }
+                }
+            }
+        }
+    )
+}
+
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
