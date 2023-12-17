@@ -255,6 +255,72 @@ fun SongDetailScreenPreview() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun FavoritesScreen(navController: NavHostController, favoriteSongs: List<Song>) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Favorites") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigate("main") }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            LazyColumn {
+                items(favoriteSongs) { song ->
+                    FavoriteSongItem(song = song)
+                    Divider()
+                }
+            }
+        }
+    )
+}
+
+@Composable
+fun FavoriteSongItem(song: Song) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        // Display song details (title and image)
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = song.title, style = MaterialTheme.typography.headlineMedium)
+            Spacer(modifier = Modifier.height(4.dp))
+            Image(
+                painter = painterResource(id = song.imageResourceId),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(100.dp)
+                    .clip(shape = MaterialTheme.shapes.medium)
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun FavoritesScreenPreview() {
+    val favoriteSongs = listOf(
+        Song("1", "Favorite Song 1", "favorite_video_url_1", R.drawable.ic_launcher_foreground),
+        Song("2", "Favorite Song 2", "favorite_video_url_2", R.drawable.ic_launcher_foreground),
+        Song("3", "Favorite Song 3", "favorite_video_url_3", R.drawable.ic_launcher_foreground),
+    )
+    val navController = rememberNavController() // Или используйте ваш собственный объект NavController
+
+    MusicNotesTheme {
+        FavoritesScreen(navController = navController, favoriteSongs = favoriteSongs)
+    }
+}
+
 
 @Preview(showBackground = true)
 @Composable
