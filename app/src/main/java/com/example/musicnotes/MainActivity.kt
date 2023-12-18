@@ -56,21 +56,21 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MusicNotesTheme {
-                AppNavigation()
+                AppNavigation(musicViewModel)
             }
         }
     }
 }
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(musicViewModel: MusicViewModel) {
     val navController = rememberNavController()
     val favoriteSongsState = remember { mutableStateOf<List<Song>>(emptyList()) }
     NavHost(
         navController = navController,
         startDestination = "main"
     ) {
-        composable("main") { MainScreen(navController) }
+        composable("main") { MainScreen(navController)}
         composable("songList") { SongListScreen(navController, songs = emptyList(), navigateToSong = { song -> navController.navigate("songDetail/${song.id}") } ) }
         composable(
             route = "songDetail/{songId}",
@@ -78,9 +78,9 @@ fun AppNavigation() {
         ) { backStackEntry ->
             val songId = backStackEntry.arguments?.getString("songId")
             val song = getSongById(songId)
-            SongDetailScreen(songId, navController, songs = allSongs, addToFavorites = { song -> addToFavorites(song as? Song, favoriteSongsState) })
+            SongDetailScreen(songId, navController, songs = allSongs, musicViewModel)
         }
-        composable("favorites") { FavoritesScreen(navController, favoriteSongs = favoriteSongsState.value) }
+        composable("favorites") { FavoritesScreen(navController, musicViewModel) }
         composable("search") { SearchScreen(navController, allSongs = emptyList(), onSearch = {}) }
     }
 }
@@ -218,7 +218,7 @@ fun SongDetailScreen(
     songId: String?,
     navController: NavHostController,
     songs: List<Song?>,
-    addToFavorites: (Any?) -> Unit
+    musicViewModel: MusicViewModel
 ){
     val song = songs.find { it!!.id == songId }
     if (song==null){
@@ -234,7 +234,7 @@ fun SongDetailScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { addToFavorites(song) }) {
+                    IconButton(onClick = { musicViewModel.addToFavorites(song) }) {
                         Icon(Icons.Default.Favorite, contentDescription = null)
                     }
                 }
@@ -271,13 +271,15 @@ fun SongDetailScreenPreview() {
     val song = Song("1","Sample Song", "sample_video_url", R.drawable.barca)
 
     MusicNotesTheme {
-        SongDetailScreen(songId = "1", navController = rememberNavController(), songs = listOf(song), addToFavorites = {})
+        SongDetailScreen(songId = "1", navController = rememberNavController(), songs = listOf(song), musicViewModel = MusicViewModel())
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun FavoritesScreen(navController: NavHostController, favoriteSongs: List<Song>) {
+fun FavoritesScreen(navController: NavHostController, musicViewModel: MusicViewModel) {
+    val favoriteSongs = musicViewModel.getFavoriteSongs()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -290,7 +292,7 @@ fun FavoritesScreen(navController: NavHostController, favoriteSongs: List<Song>)
             )
         },
         content = {
-            LazyColumn( contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
+            LazyColumn(contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
                 items(favoriteSongs) { song ->
                     FavoriteSongItem(song = song)
                     Divider()
@@ -299,6 +301,7 @@ fun FavoritesScreen(navController: NavHostController, favoriteSongs: List<Song>)
         }
     )
 }
+
 
 @Composable
 fun FavoriteSongItem(song: Song) {
@@ -334,9 +337,9 @@ fun FavoritesScreenPreview() {
         Song("3", "Favorite Song 3", "favorite_video_url_3", R.drawable.ic_launcher_foreground),
     )
     val navController = rememberNavController()
-*
+
     MusicNotesTheme {
-        FavoritesScreen(navController = navController, favoriteSongs = favoriteSongs)
+        FavoritesScreen(navController = navController, musicViewModel = MusicViewModel())
     }
 }
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
