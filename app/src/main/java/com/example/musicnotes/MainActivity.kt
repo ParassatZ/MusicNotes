@@ -4,6 +4,9 @@
 package com.example.musicnotes
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -18,6 +21,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -38,9 +42,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.musicnotes.ui.theme.MusicNotesTheme
@@ -67,10 +76,13 @@ class MainActivity : ComponentActivity() {
 fun AppNavigation(musicViewModel: MusicViewModel) {
     val navController = rememberNavController()
     val favoriteSongsState = remember { mutableStateOf<List<Song>>(emptyList()) }
+    val registrationData = remember { mutableStateOf(RegistrationData("", "")) }
     NavHost(
         navController = navController,
-        startDestination = "main"
+        startDestination = "register"
     ) {
+        composable("register"){ RegistrationScreen(navController, registrationData)}
+        composable("login") { LoginScreen(navController = navController, registrationData.value) }
         composable("main") { MainScreen(navController)}
         composable("songList") { SongListScreen(navController, songs = emptyList(), navigateToSong = { song -> navController.navigate("songDetail/${song.id}") } ) }
         composable(
@@ -83,6 +95,10 @@ fun AppNavigation(musicViewModel: MusicViewModel) {
         }
         composable("favorites") { FavoritesScreen(navController, musicViewModel) }
         composable("search") { SearchScreen(navController, allSongs = emptyList(), onSearch = {}) }
+        composable("profile/{username}") { backStackEntry ->
+            val username = backStackEntry.arguments?.getString("username")
+            ProfileScreen(navController, username.orEmpty())
+        }
     }
 }
 
@@ -142,11 +158,15 @@ fun MainScreen(navController: NavHostController) {
                 Icon(Icons.Default.Favorite, contentDescription = null)
             }
             IconButton(onClick = { navController.navigate("search") }) {
-                Icon(Icons.Default.Search, contentDescription = null)
+                Icon(Icons.Default.Search, contentDescription = null)}
+
+            IconButton(onClick = { navController.navigate("profile/{username}") }) {
+                    Icon(Icons.Default.Person, contentDescription = null)
+                }
             }
         }
     }
-}
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -225,6 +245,7 @@ fun SongDetailScreen(
     if (song==null){
         Text("Song not found")
     }
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
@@ -251,7 +272,18 @@ fun SongDetailScreen(
             ) {
                 Text(text = song?.title ?: "Song Detail", style = MaterialTheme.typography.headlineMedium)
                 Spacer(modifier = Modifier.height(16.dp))
-                Text(text = "Video Tutorial: ${song?.videoUrl}")
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(style = SpanStyle(textDecoration = TextDecoration.Underline)) {
+                            append("Video Tutorial: ")
+                        }
+                        append(song?.videoUrl ?: "")
+                    },
+                    modifier = Modifier.clickable {
+                        // Handle the click on the link here
+                        openLinkInBrowser(context, song?.videoUrl ?: "")
+                    }
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Image(
                     painter = painterResource(id = song?.imageResourceId ?: R.drawable.barca),
@@ -264,6 +296,10 @@ fun SongDetailScreen(
             }
         }
     )
+}
+fun openLinkInBrowser(context: Context, url: String) {
+    val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+    context.startActivity(intent)
 }
 
 @Preview(showBackground = true)
@@ -566,13 +602,14 @@ fun RegistrationScreen(navController: NavHostController, registrationData: Mutab
                         // Добавьте здесь логику для случая несовпадения паролей
                     }
                 }) {
-                    Text("Register")/
+                    Text("Register")
                 }
             }
         }
     )
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun ProfileScreen(navController: NavHostController, username: String) {
     Scaffold(
@@ -595,7 +632,7 @@ fun ProfileScreen(navController: NavHostController, username: String) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.barca),
+                    painter = painterResource(id = R.drawable.profile),
                     contentDescription = null,
                     modifier = Modifier
                         .height(200.dp)
