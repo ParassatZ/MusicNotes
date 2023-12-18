@@ -138,17 +138,27 @@ fun MainScreen(navController: NavHostController) {
                     TopAppBar(
                         title = { Text("Music Notes", modifier = Modifier
                             .padding(start = 32.dp),
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            color = Color.hsl(0.61F, 0.51F, 0.16F)
                         ) },
                         Modifier.background(color = MaterialTheme.colorScheme.primary)
                     )
                 },
                 content = {
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Image(
+                            painter = painterResource(R.drawable.icon),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(200.dp)
+                                .width(200.dp)
+                                .clip(shape = MaterialTheme.shapes.medium)
+                        )
                         Button(
                             onClick = {
                                 navController.navigate("songList") {
@@ -205,7 +215,7 @@ fun SongListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Song List") },
+                title = { Text("Song List", color = Color.hsl(0.61F, 0.51F, 0.16F)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate("main") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -245,7 +255,7 @@ fun SongListItem(song: Song, navigateToSong: (Song) -> Unit) {
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = song.title, style = MaterialTheme.typography.headlineMedium)
+            Text(text = song.title, style = MaterialTheme.typography.headlineMedium, color = Color.hsl(0.61F, 0.51F, 0.16F))
             Spacer(modifier = Modifier.height(4.dp))
             Image(
                 painter = painterResource(id = song.imageResourceId),
@@ -286,7 +296,7 @@ fun SongDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(song?.title ?: "Song Detail") },
+                title = { Text(song?.title ?: "Song Detail", color = Color.hsl(0.61F, 0.51F, 0.16F)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate("songList") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -294,7 +304,7 @@ fun SongDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = { musicViewModel.addToFavorites(song) }) {
-                        Icon(Icons.Default.Favorite, contentDescription = null)
+                        Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.hsl(37.28F, 0.98F, 0.53F))
                     }
                 }
             )
@@ -309,7 +319,8 @@ fun SongDetailScreen(
             ) {
                 Text(
                     text = song?.title ?: "Song Detail",
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
+                            color = Color.hsl(0.61F, 0.51F, 0.16F)
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -321,7 +332,9 @@ fun SongDetailScreen(
                     },
                     modifier = Modifier.clickable {
                         openLinkInBrowser(context, song?.videoUrl ?: "")
-                    }
+                    },color = Color.hsl(0.61F, 0.51F, 0.16F)
+
+
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Image(
@@ -365,7 +378,7 @@ fun FavoritesScreen(navController: NavHostController, musicViewModel: MusicViewM
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorites") },
+                title = { Text("Favorites", color = Color.hsl(0.61F, 0.51F, 0.16F)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate("main") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -403,7 +416,7 @@ fun FavoriteSongItem(song: Song) {
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = song.title, style = MaterialTheme.typography.headlineMedium)
+            Text(text = song.title, style = MaterialTheme.typography.headlineMedium, color = Color.hsl(0.61F, 0.51F, 0.16F))
             Spacer(modifier = Modifier.height(4.dp))
             Image(
                 painter = painterResource(id = song.imageResourceId),
@@ -499,7 +512,7 @@ fun SearchSongItem(song: Song) {
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.Center
         ) {
-            Text(text = song.title, style = MaterialTheme.typography.headlineMedium)
+            Text(text = song.title, style = MaterialTheme.typography.headlineMedium, color = Color.hsl(0.61F, 0.51F, 0.16F))
             Spacer(modifier = Modifier.height(4.dp))
             Image(
                 painter = painterResource(id = song.imageResourceId),
@@ -549,12 +562,7 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Login") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate("main") }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                }
+                title = { Text("Login", color = Color.hsl(0.61F, 0.51F, 0.16F)) }
             )
         },
         content = {
@@ -593,7 +601,13 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
                         }
                     } else {
                     }
-                }) {
+                },
+                    modifier = Modifier.
+                    background(Color.hsl(0.61F, 0.51F, 0.16F), shape = RoundedCornerShape(16.dp)),
+                    colors = ButtonDefaults.buttonColors(Color.hsl(0.61F, 0.51F, 0.16F)
+
+                    )
+                    ) {
                     Text("Login")
                 }
             }
@@ -614,12 +628,7 @@ fun RegistrationScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Registration") },
-                navigationIcon = {
-                    IconButton(onClick = { navController.navigate("login") }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = null)
-                    }
-                }
+                title = { Text("Registration", color = Color.hsl(0.61F, 0.51F, 0.16F)) }
             )
         },
         content = {
@@ -665,7 +674,12 @@ fun RegistrationScreen(
                         navController.navigate("login")
                     } else {
                     }
-                }) {
+                },
+                    modifier = Modifier.background(Color.hsl(0.61F, 0.51F, 0.16F), shape = RoundedCornerShape(16.dp)),
+                    colors = ButtonDefaults.buttonColors(Color.hsl(0.61F, 0.51F, 0.16F)
+
+                    )
+                    ) {
                     Text("Register")
                 }
             }
@@ -679,7 +693,7 @@ fun ProfileScreen(navController: NavHostController, username: String) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Profile") },
+                title = { Text("Profile", color = Color.hsl(0.61F, 0.51F, 0.16F)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.navigate("main") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
@@ -702,7 +716,7 @@ fun ProfileScreen(navController: NavHostController, username: String) {
                         .height(200.dp)
                         .clip(shape = MaterialTheme.shapes.medium)
                 )
-                Text("Username: $username", style = MaterialTheme.typography.headlineMedium)
+                Text("Username: $username", style = MaterialTheme.typography.headlineMedium, color = Color.hsl(0.61F, 0.51F, 0.16F))
 
             }
         }
