@@ -435,3 +435,66 @@ fun MainScreenPreview() {
         MainScreen(navController = navController)
     }
 }
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun LoginScreen(navController: NavHostController, registrationData: RegistrationData) {
+    var enteredUsername by remember { mutableStateOf(TextFieldValue()) }
+    var enteredPassword by remember { mutableStateOf(TextFieldValue()) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Login") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigate("main") }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TextField(
+                    value = enteredUsername,
+                    onValueChange = { enteredUsername = it },
+                    label = { Text("Username") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = enteredPassword,
+                    onValueChange = { enteredPassword = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    // Проверка введенных данных с данными регистрации
+                    if (enteredUsername.text == registrationData.username &&
+                        enteredPassword.text == registrationData.password
+                    ) {
+                        // Добавьте здесь логику успешного входа
+                        navController.navigate("profile/${enteredUsername.text}") {
+                            launchSingleTop = true
+                        }
+                    } else {
+                    }
+                }) {
+                    Text("Login")
+                }
+            }
+        }
+    )
+}
