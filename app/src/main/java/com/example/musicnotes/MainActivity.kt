@@ -7,6 +7,7 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -50,6 +51,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
+    private val musicViewModel: MusicViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -332,7 +334,7 @@ fun FavoritesScreenPreview() {
         Song("3", "Favorite Song 3", "favorite_video_url_3", R.drawable.ic_launcher_foreground),
     )
     val navController = rememberNavController()
-
+*
     MusicNotesTheme {
         FavoritesScreen(navController = navController, favoriteSongs = favoriteSongs)
     }
