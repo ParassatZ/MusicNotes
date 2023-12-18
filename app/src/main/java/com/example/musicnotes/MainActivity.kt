@@ -17,6 +17,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,16 +44,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.musicnotes.ui.theme.MusicNotesTheme
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -130,7 +136,10 @@ fun MainScreen(navController: NavHostController) {
             Scaffold(
                 topBar = {
                     TopAppBar(
-                        title = { Text("Music Notes") },
+                        title = { Text("Music Notes", modifier = Modifier
+                            .padding(start = 32.dp),
+                            textAlign = TextAlign.Center
+                        ) },
                         Modifier.background(color = MaterialTheme.colorScheme.primary)
                     )
                 },
@@ -140,12 +149,24 @@ fun MainScreen(navController: NavHostController) {
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Button(onClick = {
-                            navController.navigate("songList") {
+                        Button(
+                            onClick = {
+                                navController.navigate("songList") {
 
-                            }
-                        }) {
-                            Text("Start")
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(72.dp)
+                                .background(Color.hsl(0.61F, 0.51F, 0.16F), shape = RoundedCornerShape(16.dp)),
+                            colors = ButtonDefaults.buttonColors(Color.hsl(0.61F, 0.51F, 0.16F)
+
+                            )
+                        ) {
+                            Text(
+                                text = "Start",
+                                style = TextStyle(fontSize = 20.sp)
+                            )
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                     }
@@ -160,14 +181,14 @@ fun MainScreen(navController: NavHostController) {
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(onClick = { navController.navigate("favorites") }) {
-                Icon(Icons.Default.Favorite, contentDescription = null)
+                Icon(Icons.Default.Favorite, contentDescription = null, tint = Color.hsl(37.28F, 0.98F, 0.53F))
             }
             IconButton(onClick = { navController.navigate("search") }) {
-                Icon(Icons.Default.Search, contentDescription = null)
+                Icon(Icons.Default.Search, contentDescription = null, tint = Color.hsl(37.28F, 0.98F, 0.53F))
             }
 
             IconButton(onClick = { navController.navigate("profile/{username}") }) {
-                Icon(Icons.Default.Person, contentDescription = null)
+                Icon(Icons.Default.Person, contentDescription = null, tint = Color.hsl(37.28F, 0.98F, 0.53F))
             }
         }
     }
