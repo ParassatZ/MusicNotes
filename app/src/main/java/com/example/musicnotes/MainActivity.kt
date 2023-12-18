@@ -81,10 +81,15 @@ fun AppNavigation(musicViewModel: MusicViewModel) {
         navController = navController,
         startDestination = "register"
     ) {
-        composable("register"){ RegistrationScreen(navController, registrationData)}
+        composable("register") { RegistrationScreen(navController, registrationData) }
         composable("login") { LoginScreen(navController = navController, registrationData.value) }
-        composable("main") { MainScreen(navController)}
-        composable("songList") { SongListScreen(navController, songs = emptyList(), navigateToSong = { song -> navController.navigate("songDetail/${song.id}") } ) }
+        composable("main") { MainScreen(navController) }
+        composable("songList") {
+            SongListScreen(
+                navController,
+                songs = emptyList(),
+                navigateToSong = { song -> navController.navigate("songDetail/${song.id}") })
+        }
         composable(
             route = "songDetail/{songId}",
             arguments = listOf(navArgument("songId") { type = NavType.StringType })
@@ -158,25 +163,30 @@ fun MainScreen(navController: NavHostController) {
                 Icon(Icons.Default.Favorite, contentDescription = null)
             }
             IconButton(onClick = { navController.navigate("search") }) {
-                Icon(Icons.Default.Search, contentDescription = null)}
+                Icon(Icons.Default.Search, contentDescription = null)
+            }
 
             IconButton(onClick = { navController.navigate("profile/{username}") }) {
-                    Icon(Icons.Default.Person, contentDescription = null)
-                }
+                Icon(Icons.Default.Person, contentDescription = null)
             }
         }
     }
+}
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SongListScreen(navController: NavHostController, songs: List<Song>, navigateToSong: (Song) -> Unit) {
+fun SongListScreen(
+    navController: NavHostController,
+    songs: List<Song>,
+    navigateToSong: (Song) -> Unit
+) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Song List") },
                 navigationIcon = {
-                    IconButton(onClick = {  navController.navigate("main")  }) {
+                    IconButton(onClick = { navController.navigate("main") }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = null)
                     }
                 }
@@ -184,7 +194,14 @@ fun SongListScreen(navController: NavHostController, songs: List<Song>, navigate
         },
         content = {
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn( contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = 48.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
+            ) {
                 items(items = allSongs, key = { song -> song.id }) { song ->
                     SongListItem(song = song, navigateToSong = navigateToSong)
                     Divider()
@@ -232,7 +249,6 @@ fun SongListScreenPreview() {
 }
 
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SongDetailScreen(
@@ -240,9 +256,9 @@ fun SongDetailScreen(
     navController: NavHostController,
     songs: List<Song?>,
     musicViewModel: MusicViewModel
-){
+) {
     val song = songs.find { it!!.id == songId }
-    if (song==null){
+    if (song == null) {
         Text("Song not found")
     }
     val context = LocalContext.current
@@ -270,7 +286,10 @@ fun SongDetailScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(text = song?.title ?: "Song Detail", style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    text = song?.title ?: "Song Detail",
+                    style = MaterialTheme.typography.headlineMedium
+                )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     text = buildAnnotatedString {
@@ -280,7 +299,6 @@ fun SongDetailScreen(
                         append(song?.videoUrl ?: "")
                     },
                     modifier = Modifier.clickable {
-                        // Handle the click on the link here
                         openLinkInBrowser(context, song?.videoUrl ?: "")
                     }
                 )
@@ -297,6 +315,7 @@ fun SongDetailScreen(
         }
     )
 }
+
 fun openLinkInBrowser(context: Context, url: String) {
     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
     context.startActivity(intent)
@@ -305,10 +324,15 @@ fun openLinkInBrowser(context: Context, url: String) {
 @Preview(showBackground = true)
 @Composable
 fun SongDetailScreenPreview() {
-    val song = Song("1","Sample Song", "sample_video_url", R.drawable.barca)
+    val song = Song("1", "Sample Song", "sample_video_url", R.drawable.barca)
 
     MusicNotesTheme {
-        SongDetailScreen(songId = "1", navController = rememberNavController(), songs = listOf(song), musicViewModel = MusicViewModel())
+        SongDetailScreen(
+            songId = "1",
+            navController = rememberNavController(),
+            songs = listOf(song),
+            musicViewModel = MusicViewModel()
+        )
     }
 }
 
@@ -329,7 +353,14 @@ fun FavoritesScreen(navController: NavHostController, musicViewModel: MusicViewM
             )
         },
         content = {
-            LazyColumn(contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = 48.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
+            ) {
                 items(favoriteSongs) { song ->
                     FavoriteSongItem(song = song)
                     Divider()
@@ -379,9 +410,14 @@ fun FavoritesScreenPreview() {
         FavoritesScreen(navController = navController, musicViewModel = MusicViewModel())
     }
 }
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun SearchScreen(navController: NavHostController, allSongs: List<Song>, onSearch: (String) -> Unit) {
+fun SearchScreen(
+    navController: NavHostController,
+    allSongs: List<Song>,
+    onSearch: (String) -> Unit
+) {
     var searchText by remember { mutableStateOf(TextFieldValue()) }
 
     Scaffold(
@@ -409,8 +445,20 @@ fun SearchScreen(navController: NavHostController, allSongs: List<Song>, onSearc
         },
         content = {
             Spacer(modifier = Modifier.height(16.dp))
-            LazyColumn(contentPadding = PaddingValues(start = 16.dp, top = 48.dp, end = 16.dp, bottom = 16.dp)) {
-                items(items = com.example.musicnotes.allSongs.filter { it.title.contains(searchText.text, ignoreCase = true) }) { song ->
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    top = 48.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
+            ) {
+                items(items = com.example.musicnotes.allSongs.filter {
+                    it.title.contains(
+                        searchText.text,
+                        ignoreCase = true
+                    )
+                }) { song ->
                     SearchSongItem(song = song)
                     Divider()
                 }
@@ -448,11 +496,11 @@ fun SearchSongItem(song: Song) {
 @Composable
 fun SearchScreenPreview() {
     val allSongs = listOf(
-        Song("1","Search Song 1", "search_video_url_1", R.drawable.ic_launcher_foreground),
+        Song("1", "Search Song 1", "search_video_url_1", R.drawable.ic_launcher_foreground),
         Song("2", "Search Song 2", "search_video_url_2", R.drawable.ic_launcher_foreground),
-        Song("3","Search Song 3", "search_video_url_3", R.drawable.ic_launcher_foreground),
-        Song("4","Search Song 4", "search_video_url_4", R.drawable.ic_launcher_foreground),
-        Song("5","Search Song 5", "search_video_url_5", R.drawable.ic_launcher_foreground),
+        Song("3", "Search Song 3", "search_video_url_3", R.drawable.ic_launcher_foreground),
+        Song("4", "Search Song 4", "search_video_url_4", R.drawable.ic_launcher_foreground),
+        Song("5", "Search Song 5", "search_video_url_5", R.drawable.ic_launcher_foreground),
     )
     val navController = rememberNavController()
 
@@ -460,8 +508,6 @@ fun SearchScreenPreview() {
         SearchScreen(navController = navController, allSongs = allSongs, onSearch = {})
     }
 }
-
-
 
 
 @Preview(showBackground = true)
@@ -518,11 +564,9 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    // Проверка введенных данных с данными регистрации
                     if (enteredUsername.text == registrationData.username &&
                         enteredPassword.text == registrationData.password
                     ) {
-                        // Добавьте здесь логику успешного входа
                         navController.navigate("profile/${enteredUsername.text}") {
                             launchSingleTop = true
                         }
@@ -538,7 +582,10 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun RegistrationScreen(navController: NavHostController, registrationData: MutableState<RegistrationData>) {
+fun RegistrationScreen(
+    navController: NavHostController,
+    registrationData: MutableState<RegistrationData>
+) {
     var username by remember { mutableStateOf(TextFieldValue()) }
     var password by remember { mutableStateOf(TextFieldValue()) }
     var confirmPassword by remember { mutableStateOf(TextFieldValue()) }
@@ -592,14 +639,10 @@ fun RegistrationScreen(navController: NavHostController, registrationData: Mutab
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    // Проверка совпадения паролей
                     if (password.text == confirmPassword.text) {
-                        // Сохранение данных регистрации
                         registrationData.value = RegistrationData(username.text, password.text)
-                        // Добавьте здесь логику для успешной регистрации
                         navController.navigate("login")
                     } else {
-                        // Добавьте здесь логику для случая несовпадения паролей
                     }
                 }) {
                     Text("Register")
