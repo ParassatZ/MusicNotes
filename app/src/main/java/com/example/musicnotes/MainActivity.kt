@@ -39,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -565,8 +566,43 @@ fun RegistrationScreen(navController: NavHostController, registrationData: Mutab
                         // Добавьте здесь логику для случая несовпадения паролей
                     }
                 }) {
-                    Text("Register")
+                    Text("Register")/
                 }
+            }
+        }
+    )
+}
+
+@Composable
+fun ProfileScreen(navController: NavHostController, username: String) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Profile") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigate("main") }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.barca),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .clip(shape = MaterialTheme.shapes.medium)
+                )
+                Text("Username: $username", style = MaterialTheme.typography.headlineMedium)
+
             }
         }
     )
