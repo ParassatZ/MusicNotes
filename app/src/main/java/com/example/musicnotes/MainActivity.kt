@@ -498,3 +498,76 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
         }
     )
 }
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@Composable
+fun RegistrationScreen(navController: NavHostController, registrationData: MutableState<RegistrationData>) {
+    var username by remember { mutableStateOf(TextFieldValue()) }
+    var password by remember { mutableStateOf(TextFieldValue()) }
+    var confirmPassword by remember { mutableStateOf(TextFieldValue()) }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Registration") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigate("login") }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = null)
+                    }
+                }
+            )
+        },
+        content = {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                TextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    label = { Text("Username") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    label = { Text("Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                TextField(
+                    value = confirmPassword,
+                    onValueChange = { confirmPassword = it },
+                    label = { Text("Confirm Password") },
+                    visualTransformation = PasswordVisualTransformation(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(onClick = {
+                    // Проверка совпадения паролей
+                    if (password.text == confirmPassword.text) {
+                        // Сохранение данных регистрации
+                        registrationData.value = RegistrationData(username.text, password.text)
+                        // Добавьте здесь логику для успешной регистрации
+                        navController.navigate("login")
+                    } else {
+                        // Добавьте здесь логику для случая несовпадения паролей
+                    }
+                }) {
+                    Text("Register")
+                }
+            }
+        }
+    )
+}
