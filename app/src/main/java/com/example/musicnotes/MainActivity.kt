@@ -389,19 +389,41 @@ fun FavoritesScreen(navController: NavHostController, musicViewModel: MusicViewM
             )
         },
         content = {
-            LazyColumn(
-                contentPadding = PaddingValues(
-                    start = 16.dp,
-                    top = 48.dp,
-                    end = 16.dp,
-                    bottom = 16.dp
-                )
-            ) {
-                items(favoriteSongs) { song ->
-                    FavoriteSongItem(song = song)
-                    Divider()
+                if (favoriteSongs.isEmpty()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Image(
+                            painter = painterResource(R.drawable.icon),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .height(200.dp)
+                                .width(200.dp)
+                                .clip(shape = MaterialTheme.shapes.medium)
+                        )
+                        Text("The favorites list is empty", textAlign = TextAlign.Center, color = Color.hsl(0.61F, 0.51F, 0.16F), style = MaterialTheme.typography.headlineMedium)
+                    }
                 }
-            }
+                     else {
+
+                        LazyColumn(
+                            contentPadding = PaddingValues(
+                                start = 16.dp,
+                                top = 48.dp,
+                                end = 16.dp,
+                                bottom = 16.dp
+                            )
+                        ) {
+                            items(favoriteSongs) { song ->
+                                FavoriteSongItem(song = song)
+                                Divider()
+                            }
+                        }
+                    }
         }
     )
 }
