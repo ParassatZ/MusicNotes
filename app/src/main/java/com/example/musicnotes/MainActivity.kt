@@ -68,18 +68,19 @@ import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
     private val musicViewModel: MusicViewModel by viewModels()
+    private val sharedViewModel: SharedViewModel by viewModels()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MusicNotesTheme {
-                AppNavigation(musicViewModel)
+                AppNavigation(musicViewModel, sharedViewModel)
             }
         }
     }
 }
 
 @Composable
-fun AppNavigation(musicViewModel: MusicViewModel) {
+fun AppNavigation(musicViewModel: MusicViewModel, sharedViewModel: SharedViewModel) {
     val navController = rememberNavController()
     val favoriteSongsState = remember { mutableStateOf<List<Song>>(emptyList()) }
     val registrationData = remember { mutableStateOf(RegistrationData("", "")) }
@@ -88,8 +89,8 @@ fun AppNavigation(musicViewModel: MusicViewModel) {
         startDestination = "register"
     ) {
         composable("register") { RegistrationScreen(navController, registrationData) }
-        composable("login") { LoginScreen(navController = navController, registrationData.value) }
-        composable("main") { MainScreen(navController) }
+        composable("login") { LoginScreen(navController = navController, registrationData.value, sharedViewModel) }
+        composable("main") { MainScreen(navController, sharedViewModel) }
         composable("songList") {
             SongListScreen(
                 navController,
@@ -108,7 +109,7 @@ fun AppNavigation(musicViewModel: MusicViewModel) {
         composable("search") { SearchScreen(navController, allSongs = emptyList(), onSearch = {}) }
         composable("profile/{username}") { backStackEntry ->
             val username = backStackEntry.arguments?.getString("username")
-            ProfileScreen(navController, username.orEmpty())
+            ProfileScreen(navController, sharedViewModel)
         }
     }
 }
@@ -121,7 +122,7 @@ fun addToFavorites(song: Song?, favoriteSongsState: MutableState<List<Song>>) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(navController: NavHostController, viewModel: SharedViewModel) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -197,7 +198,8 @@ fun MainScreen(navController: NavHostController) {
                 Icon(Icons.Default.Search, contentDescription = null, tint = Color.hsl(37.28F, 0.98F, 0.53F))
             }
 
-            IconButton(onClick = { navController.navigate("profile/{username}") }) {
+            IconButton(onClick = {val username = viewModel.enteredUsername.value
+                    navController.navigate("profile/$username")}) {
                 Icon(Icons.Default.Person, contentDescription = null, tint = Color.hsl(37.28F, 0.98F, 0.53F))
             }
         }
@@ -549,13 +551,13 @@ fun SearchScreenPreview() {
 fun MainScreenPreview() {
     val navController = rememberNavController()
     MusicNotesTheme {
-        MainScreen(navController = navController)
+        MainScreen(navController = navController, viewModel = SharedViewModel())
     }
 }
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun LoginScreen(navController: NavHostController, registrationData: RegistrationData) {
+fun LoginScreen(navController: NavHostController, registrationData: RegistrationData, viewModel: SharedViewModel) {
     var enteredUsername by remember { mutableStateOf(TextFieldValue()) }
     var enteredPassword by remember { mutableStateOf(TextFieldValue()) }
 
@@ -573,9 +575,19 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Image(
+                    painter = painterResource(R.drawable.icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(200.dp)
+                        .clip(shape = MaterialTheme.shapes.medium)
+                )
                 TextField(
-                    value = enteredUsername,
-                    onValueChange = { enteredUsername = it },
+                    value = viewModel.enteredUsername.value,
+                    onValueChange = {
+                        viewModel.enteredUsername.value = it
+                    },
                     label = { Text("Username") },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -593,10 +605,10 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(onClick = {
-                    if (enteredUsername.text == registrationData.username &&
+                    if (viewModel.enteredUsername.value == registrationData.username &&
                         enteredPassword.text == registrationData.password
                     ) {
-                        navController.navigate("profile/${enteredUsername.text}") {
+                        navController.navigate("main") {
                             launchSingleTop = true
                         }
                     } else {
@@ -614,6 +626,19 @@ fun LoginScreen(navController: NavHostController, registrationData: Registration
         }
     )
 }
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    val navController = rememberNavController()
+    val registrationData = remember { mutableStateOf(RegistrationData("sample_username", "sample_password")) }
+    val viewModel = remember { SharedViewModel() }
+
+    MusicNotesTheme {
+        LoginScreen(navController = navController, registrationData = registrationData.value, viewModel = viewModel)
+    }
+}
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -639,6 +664,14 @@ fun RegistrationScreen(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                Image(
+                    painter = painterResource(R.drawable.icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(200.dp)
+                        .clip(shape = MaterialTheme.shapes.medium)
+                )
                 TextField(
                     value = username,
                     onValueChange = { username = it },
@@ -687,9 +720,21 @@ fun RegistrationScreen(
     )
 }
 
+@Preview(showBackground = true)
+@Composable
+fun RegistrationScreenPreview() {
+    val navController = rememberNavController()
+    val registrationData = remember { mutableStateOf(RegistrationData("", "")) }
+
+    MusicNotesTheme {
+        RegistrationScreen(navController = navController, registrationData = registrationData)
+    }
+}
+
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun ProfileScreen(navController: NavHostController, username: String) {
+fun ProfileScreen(navController: NavHostController, viewModel: SharedViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
@@ -710,15 +755,34 @@ fun ProfileScreen(navController: NavHostController, username: String) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
+                    painter = painterResource(R.drawable.icon),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(200.dp)
+                        .clip(shape = MaterialTheme.shapes.medium)
+                )
+                Image(
                     painter = painterResource(id = R.drawable.profile),
                     contentDescription = null,
                     modifier = Modifier
                         .height(200.dp)
                         .clip(shape = MaterialTheme.shapes.medium)
                 )
+                val username = viewModel.enteredUsername.value
                 Text("Username: $username", style = MaterialTheme.typography.headlineMedium, color = Color.hsl(0.61F, 0.51F, 0.16F))
 
             }
         }
     )
+}
+@Preview(showBackground = true)
+@Composable
+fun ProfileScreenPreview() {
+    val navController = rememberNavController()
+    val viewModel = SharedViewModel()
+
+    MusicNotesTheme {
+        ProfileScreen(navController = navController, viewModel = viewModel)
+    }
 }
